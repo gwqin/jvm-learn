@@ -81,7 +81,7 @@
 
 ​	常量在编译阶段会存入到调用这个常量的方法所在的类的常量池中。本质上，调用类并没有直接引用到定义常量的类，因此不会触发定义常量的类的初始化。即A类调用B类的V常量时，V会存到A的常量池中，之后A和B之间没有任何关系，甚至可以将B的class文件删除。
 
-##### 实例一
+##### 实例1
 
 ###### java代码
 
@@ -125,8 +125,6 @@ class MyChild1 extends MyParent1
 ###### 解释
 
 ​	通过子类的名字调用父类的静态变量，并没有主动使用子类，所以子类的静态代码块没有被初始化和执行。
-
-##### 实例二
 
 ###### java代码
 
@@ -229,7 +227,7 @@ class MyChild1 extends MyParent1
 
 即使没有对MyChild1这个类初始化，但是也完成了对这个类的加载。
 
-##### 实例三
+##### 实例2
 
 ###### java代码
 
@@ -316,7 +314,7 @@ class MyParent2
 
 #### 4、编译期常量与运行期常量的区别及数组创建本质解析
 
-##### 实例一
+##### 实例3
 
 ###### java代码
 
@@ -359,7 +357,7 @@ class MyParent3
 
 str编译期间不确定，导致MyParent3被初始化，因而静态代码块被初始化并执行。
 
-##### 实例二
+##### 实例4
 
 ###### java代码
 
@@ -398,7 +396,7 @@ class MyPsrent4
 
 创建一个类的实例，且是在首次主动使用时进行初始化。
 
-##### 实例二
+
 
 ###### java代码
 
@@ -465,7 +463,7 @@ MyPsrent4没有被初始化，类加载器自动生成一种类型，数组类�
 
 #### 5、 接口初始化规则与类加载器准备阶段和初始化阶段的重要意义分析
 
-##### 实例一（接口初始化规则）
+##### 实例5（接口初始化规则）
 
 ###### java代码
 
@@ -582,7 +580,7 @@ interface MyChild5 extends MyParent5
 
 ​	*接口中定义的属性默认是`public  static final`类型。*
 
-##### 实例二（类加载器准备阶段和初始化阶段）
+##### 实例6（类加载器准备阶段和初始化阶段）
 
 ###### java代码
 
@@ -1034,6 +1032,8 @@ interface MyGrandpa5_1
 
 若有一个类加载器能够成功加载Test类（需要加载的目标类），那么这个类加载器被称为**定义类加载器**，所有能成功返回Class对象引用的类加载器（包括定义类加载器）都被称为**初始类加载器**。
 
+##### 实例7
+
 ###### java代码
 
 ~~~~java
@@ -1066,6 +1066,8 @@ class CC
 ![](JVM.assets/1564635378859.png)
 
 #### 9、类加载器与类初始化深度剖析
+
+##### 实例8
 
 ###### java代码
 
@@ -1187,6 +1189,8 @@ public class edu.learn.gwqin.jvm.MyTest8 {
 
 助记符**getstatic**说明，MyTest8在调用FinalTest.x时，本质上是FinalTest的主动使用，因此会初始化FinalTest。
 
+##### 实例9
+
 ###### 代码
 
 ~~~~java
@@ -1236,6 +1240,8 @@ class Child extends Parent
 ###### 解释
 
 先初始化MyTest9类，打印静态代码块内容，再初始化父类Parent并打印静态代码块内容，然后初始化子类Child并打印子类的静态代码块内容。最后输出结果4。
+
+##### 实例10
 
 ###### java代码
 
@@ -1295,6 +1301,8 @@ class Child2 extends Parent2
 
 *——所有的java虚拟机实现必须在每个类或接口被java程序“**首次主动使用**”时才初始化。*
 
+##### 实例11
+
 ###### java代码
 
 ~~~~java
@@ -1346,6 +1354,8 @@ class Child3 extends Parent3
 代码中没有使用到Child3的任何数据，因此没有对其产生一个主动使用，所以Child3不会被初始化。
 
 **通过子类调用父类的静态属性或静态方法时，本质上是对父类的主动使用，不是对子类的主动使用。**
+
+##### 实例12
 
 ###### java代码
 
@@ -1400,7 +1410,7 @@ class CL
 
 一个应用程序总是由n个类组成，java程序启动时，并不是一次把所有的类都加载后运行，它总是先把保证程序运行的基础类一次性加载到jvm中，其它类等到jvm用到的时候再加载。这样的好处是节省了内存的开销。因为java最早就是为嵌入式系统而设计的，内存宝贵，这是一种可以理解的机制，而用到时再加载这也是java动态性的一种体现。
 
-##### 获取类加载器
+##### 实例13-获取类加载器
 
 ###### java代码
 
@@ -1431,6 +1441,8 @@ public class MyTest13
 ###### 运行结果
 
 ![](JVM.assets/1564657078851.png)
+
+##### 实例14
 
 ###### java代码
 
@@ -1562,7 +1574,7 @@ Direct Known Subclasses:
 SecureClassLoader
 ~~~
 
-##### 实例一
+##### 实例15
 
 ###### java代码
 
@@ -1617,23 +1629,1133 @@ public class MyTest15
 
 #### 12、自定义类加载器深入详解
 
+##### 实例16
+
+###### 代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
 
 
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
 
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
 
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+    public static void test(ClassLoader classLoader) throws Exception{
+        Class<?> clazz = classLoader.loadClass("edu.learn.gwqin.jvm.C");
+        Object object = clazz.newInstance();
+        System.out.println(object);
+    }
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 myTest16 = new MyTest16("MyClassLoader");
+        test(myTest16);
+    }
+}
+~~~
 
+~~~~java 
+package edu.learn.gwqin.jvm;
 
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 10:26
+ * @descrption:
+ */
+public class C
+{
+    public C()
+    {
+        System.out.println("22222222222");
+    }
+    {
+        System.out.println("1111111111");
+    }
 
+    public static void main(String[] args)
+    {
+        C c = new C();
+    }
+}
+~~~~
+
+###### 运行结果
+
+![](JVM.assets/1564728396988.png)
 
 #### 13、类加载器重要方法详解
 
+##### findClass
 
+###### 源代码
+
+~~~java
+	/**
+     * Finds the class with the specified <a href="#name">binary name</a>.
+     * This method should be overridden by class loader implementations that
+     * follow the delegation model for loading classes, and will be invoked by
+     * the {@link #loadClass <tt>loadClass</tt>} method after checking the
+     * parent class loader for the requested class.  The default implementation
+     * throws a <tt>ClassNotFoundException</tt>.
+     *
+     * @param  name
+     *         The <a href="#name">binary name</a> of the class
+     *
+     * @return  The resulting <tt>Class</tt> object
+     *
+     * @throws  ClassNotFoundException
+     *          If the class could not be found
+     *
+     * @since  1.2
+     */
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        throw new ClassNotFoundException(name);
+    }
+~~~
+
+根据指定的二进制类名称查找该类。这个方法应该被类加载器的子实现覆盖，该实现要遵循用于加载类的委托模型，并且在检查所请求类的父类加载器之后，loadClass方法将调用该类加载器。该方法默认实现抛出ClassNotFoundException。
+
+##### defineClass
+
+###### 源代码
+
+~~~java
+	/**
+     * Converts an array of bytes into an instance of class <tt>Class</tt>.
+     * Before the <tt>Class</tt> can be used it must be resolved.
+     *
+     * <p> This method assigns a default {@link java.security.ProtectionDomain
+     * <tt>ProtectionDomain</tt>} to the newly defined class.  The
+     * <tt>ProtectionDomain</tt> is effectively granted the same set of
+     * permissions returned when {@link
+     * java.security.Policy#getPermissions(java.security.CodeSource)
+     * <tt>Policy.getPolicy().getPermissions(new CodeSource(null, null))</tt>}
+     * is invoked.  The default domain is created on the first invocation of
+     * {@link #defineClass(String, byte[], int, int) <tt>defineClass</tt>},
+     * and re-used on subsequent invocations.
+     *
+     * <p> To assign a specific <tt>ProtectionDomain</tt> to the class, use
+     * the {@link #defineClass(String, byte[], int, int,
+     * java.security.ProtectionDomain) <tt>defineClass</tt>} method that takes a
+     * <tt>ProtectionDomain</tt> as one of its arguments.  </p>
+     *
+     * @param  name
+     *         The expected <a href="#name">binary name</a> of the class, or
+     *         <tt>null</tt> if not known
+     *
+     * @param  b
+     *         The bytes that make up the class data.  The bytes in positions
+     *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
+     *         of a valid class file as defined by
+     *         <cite>The Java&trade; Virtual Machine Specification</cite>.
+     *
+     * @param  off
+     *         The start offset in <tt>b</tt> of the class data
+     *
+     * @param  len
+     *         The length of the class data
+     *
+     * @return  The <tt>Class</tt> object that was created from the specified
+     *          class data.
+     *
+     * @throws  ClassFormatError
+     *          If the data did not contain a valid class
+     *
+     * @throws  IndexOutOfBoundsException
+     *          If either <tt>off</tt> or <tt>len</tt> is negative, or if
+     *          <tt>off+len</tt> is greater than <tt>b.length</tt>.
+     *
+     * @throws  SecurityException
+     *          If an attempt is made to add this class to a package that
+     *          contains classes that were signed by a different set of
+     *          certificates than this class (which is unsigned), or if
+     *          <tt>name</tt> begins with "<tt>java.</tt>".
+     *
+     * @see  #loadClass(String, boolean)
+     * @see  #resolveClass(Class)
+     * @see  java.security.CodeSource
+     * @see  java.security.SecureClassLoader
+     *
+     * @since  1.1
+     */
+    protected final Class<?> defineClass(String name, byte[] b, int off, int len)
+        throws ClassFormatError
+    {
+        return defineClass(name, b, off, len, null);
+    }
+~~~
+
+该方法是将一个字节数组转换成一个Class类的实例，在此之前Class必须已经进行解析（类的加载过程：加载，连接【验证、准备、解析】、初始化、使用和卸载）。
+
+此方法会给新建立的Class分配一个默认的保护域，保护域是用来保证返回的新的Class的访问信息的正确性（例如相同包下边的类名是一样的），默认的域在第一次调用defineClas的时候被创建，之后会被重复使用。如果想要手动指定保护域，可以调用下面这个重载的defineClass方法：
+
+~~~java 
+	/**
+     * Converts an array of bytes into an instance of class <tt>Class</tt>,
+     * with an optional <tt>ProtectionDomain</tt>.  If the domain is
+     * <tt>null</tt>, then a default domain will be assigned to the class as
+     * specified in the documentation for {@link #defineClass(String, byte[],
+     * int, int)}.  Before the class can be used it must be resolved.
+     *
+     * <p> The first class defined in a package determines the exact set of
+     * certificates that all subsequent classes defined in that package must
+     * contain.  The set of certificates for a class is obtained from the
+     * {@link java.security.CodeSource <tt>CodeSource</tt>} within the
+     * <tt>ProtectionDomain</tt> of the class.  Any classes added to that
+     * package must contain the same set of certificates or a
+     * <tt>SecurityException</tt> will be thrown.  Note that if
+     * <tt>name</tt> is <tt>null</tt>, this check is not performed.
+     * You should always pass in the <a href="#name">binary name</a> of the
+     * class you are defining as well as the bytes.  This ensures that the
+     * class you are defining is indeed the class you think it is.
+     *
+     * <p> The specified <tt>name</tt> cannot begin with "<tt>java.</tt>", since
+     * all classes in the "<tt>java.*</tt> packages can only be defined by the
+     * bootstrap class loader.  If <tt>name</tt> is not <tt>null</tt>, it
+     * must be equal to the <a href="#name">binary name</a> of the class
+     * specified by the byte array "<tt>b</tt>", otherwise a {@link
+     * NoClassDefFoundError <tt>NoClassDefFoundError</tt>} will be thrown. </p>
+     *
+     * @param  name
+     *         The expected <a href="#name">binary name</a> of the class, or
+     *         <tt>null</tt> if not known
+     *
+     * @param  b
+     *         The bytes that make up the class data. The bytes in positions
+     *         <tt>off</tt> through <tt>off+len-1</tt> should have the format
+     *         of a valid class file as defined by
+     *         <cite>The Java&trade; Virtual Machine Specification</cite>.
+     *
+     * @param  off
+     *         The start offset in <tt>b</tt> of the class data
+     *
+     * @param  len
+     *         The length of the class data
+     *
+     * @param  protectionDomain
+     *         The ProtectionDomain of the class
+     *
+     * @return  The <tt>Class</tt> object created from the data,
+     *          and optional <tt>ProtectionDomain</tt>.
+     *
+     * @throws  ClassFormatError
+     *          If the data did not contain a valid class
+     *
+     * @throws  NoClassDefFoundError
+     *          If <tt>name</tt> is not equal to the <a href="#name">binary
+     *          name</a> of the class specified by <tt>b</tt>
+     *
+     * @throws  IndexOutOfBoundsException
+     *          If either <tt>off</tt> or <tt>len</tt> is negative, or if
+     *          <tt>off+len</tt> is greater than <tt>b.length</tt>.
+     *
+     * @throws  SecurityException
+     *          If an attempt is made to add this class to a package that
+     *          contains classes that were signed by a different set of
+     *          certificates than this class, or if <tt>name</tt> begins with
+     *          "<tt>java.</tt>".
+     */
+    protected final Class<?> defineClass(String name, byte[] b, int off, int len,
+                                         ProtectionDomain protectionDomain)
+        throws ClassFormatError
+    {
+        protectionDomain = preDefineClass(name, protectionDomain);
+        String source = defineClassSourceLocation(protectionDomain);
+        Class<?> c = defineClass1(name, b, off, len, protectionDomain, source);
+        postDefineClass(c, protectionDomain);
+        return c;
+    }
+~~~
+
+##### loadClass
+
+###### 源代码
+
+~~~~java
+	/**
+     * Loads the class with the specified <a href="#name">binary name</a>.  The
+     * default implementation of this method searches for classes in the
+     * following order:
+     *
+     * <ol>
+     *
+     *   <li><p> Invoke {@link #findLoadedClass(String)} to check if the class
+     *   has already been loaded.  </p></li>
+     *
+     *   <li><p> Invoke the {@link #loadClass(String) <tt>loadClass</tt>} method
+     *   on the parent class loader.  If the parent is <tt>null</tt> the class
+     *   loader built-in to the virtual machine is used, instead.  </p></li>
+     *
+     *   <li><p> Invoke the {@link #findClass(String)} method to find the
+     *   class.  </p></li>
+     *
+     * </ol>
+     *
+     * <p> If the class was found using the above steps, and the
+     * <tt>resolve</tt> flag is true, this method will then invoke the {@link
+     * #resolveClass(Class)} method on the resulting <tt>Class</tt> object.
+     *
+     * <p> Subclasses of <tt>ClassLoader</tt> are encouraged to override {@link
+     * #findClass(String)}, rather than this method.  </p>
+     *
+     * <p> Unless overridden, this method synchronizes on the result of
+     * {@link #getClassLoadingLock <tt>getClassLoadingLock</tt>} method
+     * during the entire class loading process.
+     *
+     * @param  name
+     *         The <a href="#name">binary name</a> of the class
+     *
+     * @param  resolve
+     *         If <tt>true</tt> then resolve the class
+     *
+     * @return  The resulting <tt>Class</tt> object
+     *
+     * @throws  ClassNotFoundException
+     *          If the class could not be found
+     */
+    protected Class<?> loadClass(String name, boolean resolve)
+        throws ClassNotFoundException
+    {
+        synchronized (getClassLoadingLock(name)) {
+            // First, check if the class has already been loaded
+            Class<?> c = findLoadedClass(name);
+            if (c == null) {
+                long t0 = System.nanoTime();
+                try {
+                    if (parent != null) {
+                        c = parent.loadClass(name, false);
+                    } else {
+                        c = findBootstrapClassOrNull(name);
+                    }
+                } catch (ClassNotFoundException e) {
+                    // ClassNotFoundException thrown if class not found
+                    // from the non-null parent class loader
+                }
+
+                if (c == null) {
+                    // If still not found, then invoke findClass in order
+                    // to find the class.
+                    long t1 = System.nanoTime();
+                    c = findClass(name);
+
+                    // this is the defining class loader; record the stats
+                    sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                    sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                    sun.misc.PerfCounter.getFindClasses().increment();
+                }
+            }
+            if (resolve) {
+                resolveClass(c);
+            }
+            return c;
+        }
+    }
+~~~~
+
+加载具有指定二进制名称的类。该方法的默认实现按以下顺序搜索类:
+
+	1. 调用findLoadedClass(String)检查类是否已经加载。
+ 	2. 在父类加载器上调用loadClass方法。如果父类为空，则使用内置到虚拟机的类加载器。
+ 	3. 调用findClass(String)方法来查找该类。
+
+如果使用上述步骤找到该类，且解析标志为true，则此方法将在生成的类对象上调用resolveClass(class)方法。类加载器的子类被鼓励覆盖findClass(String)，而不是这个方法。除非被重写，否则此方法在整个类加载过程中同步getClassLoadingLock方法的结果。
 
 #### 14、类加载器双亲委托机制实例深度剖析
 
+实例16中并不是自定义加载器加载类，而是由系统类加载器加载。下面对实例16中的代码进行改造。
 
+###### 代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String path;
+
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        System.out.println("自定义类加载器生效。");
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
+
+
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
+
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(this.path + name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
+
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        Object object = clazz.newInstance();
+        System.out.println(object);
+    }
+}
+~~~
+
+###### 运行结果
+
+![](JVM.assets/1564731278276.png)
+
+###### 解释
+
+loader1在还在C类时先委托父加载器进行加载，父加载器没有加载到该类，于是自定义加载器生效，加载对应的类。
+
+###### 代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String path;
+
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        System.out.println("自定义类加载器生效。");
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
+
+
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
+
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(this.path + name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
+
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        Object object = clazz.newInstance();
+        System.out.println(object);
+
+        System.out.println("--------------------------");
+
+        MyTest16 loader2 = new MyTest16("loader2");
+        loader2.setPath("C:\\Users\\xk\\Desktop\\");
+
+        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz2.hashCode());
+        Object object2 = clazz2.newInstance();
+        System.out.println(object2);
+    }
+}
+~~~
+
+###### 运行结果
+
+工程重新编译生成C.class，运行上面代码结果：
+
+![](JVM.assets/1564732156110.png)
+
+loader1和loader2两次加载的class的hashcode值一样，并且没有打印出"自定义类加载器生效。"，原因是该类是由系统类加载器加载完成，并只加载了一次。
+
+删除编译目录中的C.class文件后运行结果：
+
+![](JVM.assets/1564732987924.png)
+
+此时，桌面上的C.class文件被加载并初始化了两次。加载两次的原因是，loader1和loader2虽然类型相同，但却是两个不同的对象，拥有各自的命名空间，C.class在两个不同的命名空间中都被加载了。
+
+##### 命名空间
+
+每个类加载器都有自己的命名空间，命名空间由该加载器及所有父加载器所加载的类组成。
+
+在同一个命名空间中，不会出现类的完整名字（包括类的包名）相同的两个类。
+
+在不同的命名空间中，有可能会出现类的完整名字（包括类的包名）相同的两个类。
 
 #### 15、类的命名空间与卸载详解及jvisualvm使用
+
+##### 命名空间
+
+将loader2作为loader1的父类传入，此时编译目录下的C.class文件已经被删除，代码如下：
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String path;
+
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        System.out.println("自定义类加载器生效。");
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
+
+
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
+
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(this.path + name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
+
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        Object object = clazz.newInstance();
+        System.out.println(object);
+
+        System.out.println("--------------------------");
+
+        MyTest16 loader2 = new MyTest16(loader1, "loader2"); // 将loader1作为loader2的父类传入
+        loader2.setPath("C:\\Users\\xk\\Desktop\\");
+
+        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz2.hashCode());
+        Object object2 = clazz2.newInstance();
+        System.out.println(object2);
+    }
+}
+~~~
+
+###### 运行结果
+
+![](JVM.assets/1564735257471.png)
+
+###### 解释
+
+clazz是由loader1加载，clazz2加载C.class时会委托loader1加载，由于loader1已经加载，所以loader1直接返回class对象，因此两次加载的class对象为同一个。
+
+新增loader3：
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String path;
+
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        System.out.println("自定义类加载器生效。");
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
+
+
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
+
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(this.path + name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
+
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        Object object = clazz.newInstance();
+        System.out.println(object);
+
+        System.out.println("--------------------------");
+
+        MyTest16 loader2 = new MyTest16(loader1, "loader2"); // 将loader1作为loader2的父类传入
+        loader2.setPath("C:\\Users\\xk\\Desktop\\");
+
+        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz2.hashCode());
+        Object object2 = clazz2.newInstance();
+        System.out.println(object2);
+
+        System.out.println("--------------------------");
+
+        MyTest16 loader3 = new MyTest16("loader3"); // 将loader1作为loader2的父类传入
+        loader3.setPath("C:\\Users\\xk\\Desktop\\");
+
+        Class<?> clazz3 = loader3.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz3.hashCode());
+        Object object3 = clazz3.newInstance();
+        System.out.println(object3);
+
+    }
+}
+~~~
+
+###### 运行结果
+
+![](JVM.assets/1564735739937.png)
+
+###### 解释
+
+loader1的父加载器是系统类加载器，Loader2的父加载器是loader1，loader3的父加载器是系统类加载器。本质都是由系统类加载器加载的。
+
+将编译目录下的C.class文件删除后：
+
+###### 运行结果
+
+![](JVM.assets/1564736007508.png)
+
+###### 解释
+
+loader1是loader2的父类，命名空间相同，因此只加载一次；loader3是单独的命名空间，因此会单独再加载一次。
+
+如果将loader2作为loader2的父加载器传入，那么打印的三个clazz的哈希值也是相同的，因为三次加载都是由loader1加载完成（C.class文件被删除）。
+
+##### 类的卸载
+
+当MySample类被加载、连接和初始化后，它的生命周期就开始了。当代表MySample类的Class对象不在被使用引用，即不可触及时，Class对象就会结束生命周期，MySample类在**方法区**内的数据也会被卸载，从而结束生命周期，即**一个类 何时结束生命周期，取决于代表它的Class对象何时结束生命周期**。
+
+由java虚拟机自带的类加载器加载的类，在虚拟机的生命周期中，始终不会被卸载。java虚拟机会使用引用自带的三种加载器，而这三种加载器会始终引用它们所加载的类的Class对象，因此这些Class对象始终是可触及的。
+
+由用户自定义的类加载器所加载的类时可以被卸载的。
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/1 20:04
+ * @descrption:
+ */
+public class MyTest16 extends ClassLoader
+{
+    private String path;
+
+    private String classLoaderName;
+
+    private final String fileExtension = ".class";
+
+    public void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    public MyTest16(String classLoaderName)
+    {
+        //super(); // 将系统类加载器作为该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    public MyTest16(ClassLoader parent, String classLoaderName)
+    {
+        super(parent); // 显示指定该类加载器的父类加载器
+        this.classLoaderName = classLoaderName;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + classLoaderName + "]";
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException
+    {
+        System.out.println("自定义类加载器生效。");
+        byte[] data = this.loadClassData(name);
+        return this.defineClass(name, data, 0, data.length);
+    }
+
+
+    private byte[] loadClassData(String name)
+    {
+        InputStream is = null;
+        byte[] data = null;
+        ByteArrayOutputStream baos = null;
+
+        try
+        {
+            name = name.replace(".", "\\");
+            is = new FileInputStream(new File(this.path + name + this.fileExtension));
+            baos = new ByteArrayOutputStream();
+            int ch = 0;
+            while (-1 != (ch = is.read()))
+            {
+                baos.write(ch);
+            }
+            data = baos.toByteArray();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                if (is != null)
+                {
+                    is.close();
+                }
+
+                if (baos != null)
+                {
+                    baos.close();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        Object object = clazz.newInstance();
+        System.out.println(object);
+
+        System.out.println("--------------------------");
+
+        loader1 = null;
+        clazz = null;
+        object = null;
+        System.gc();
+
+        Thread.sleep(100000);
+
+        loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\"); // C.class复制一份到桌面上，classpath下的C.class已经被删除
+
+        clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class：" + clazz.hashCode());
+        object = clazz.newInstance();
+        System.out.println(object);
+
+//        MyTest16 loader2 = new MyTest16(loader1, "loader2"); // 将loader1作为loader2的父类传入
+//        loader2.setPath("C:\\Users\\xk\\Desktop\\");
+//
+//        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.C");
+//        System.out.println("class：" + clazz2.hashCode());
+//        Object object2 = clazz2.newInstance();
+//        System.out.println(object2);
+//
+//        System.out.println("--------------------------");
+//
+//        MyTest16 loader3 = new MyTest16("loader3"); // 将loader1作为loader2的父类传入
+//        loader3.setPath("C:\\Users\\xk\\Desktop\\");
+//
+//        Class<?> clazz3 = loader3.loadClass("edu.learn.gwqin.jvm.C");
+//        System.out.println("class：" + clazz3.hashCode());
+//        Object object3 = clazz3.newInstance();
+//        System.out.println(object3);
+
+    }
+}
+~~~
+
+增加运行参数 `-XX:+TraceClassUnloading`，命令行执行jvisualvm：
 
 
 
