@@ -2755,13 +2755,84 @@ public class MyTest16 extends ClassLoader
 }
 ~~~
 
-增加运行参数 `-XX:+TraceClassUnloading`，命令行执行jvisualvm：
+增加运行参数 `-XX:+TraceClassUnloading`，命令行执行jvisualvm监测类加载和卸载情况。
 
 
 
 #### 16、自定义类加载器在复杂类加载情况下的运行分析
 
+##### 实例17
 
+###### 代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:19
+ * @descrption:
+ */
+public class MyCat
+{
+    public MyCat()
+    {
+        System.out.println("MyCat is loaded by : " + this.getClass().getClassLoader());
+    }
+}
+~~~
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:19
+ * @descrption:
+ */
+public class MySample
+{
+    public MySample()
+    {
+        System.out.println("MySample is loaded by : " + this.getClass().getClassLoader());
+        new MyCat();
+    }
+}
+~~~
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:20
+ * @descrption:
+ */
+public class MyTest17
+{
+    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        Class<?> aClass = loader1.loadClass("edu.learn.gwqin.jvm.MySample");
+        System.out.println("class: " + aClass.hashCode());
+        Object o = aClass.newInstance();
+    }
+}
+~~~
+
+###### 运行结果
+
+增加-XX:+TraceClassLoading参数打印结果：
+
+![1564745276729](JVM.assets/1564745276729.png)
+
+MySample和MyCat都会被加载。注释掉`Object o = aClass.newInstance();`后运行结果：
+
+![1564745360616](JVM.assets/1564745360616.png)
+
+上述例子中的MyCat没有被加载。
+
+但是在有些情况下，MyCat是可能被加载的。因为类加载器并不需要等到某个类被“首次主动使用”时再加载它。JVM规范允许类加载器在预料某个类将要被使用时就预先加载它，如果在预先加载的过程中遇到了.class文件缺失或存在错误，类加载器必须在**首次主动使用**该类时才报告错误（LinkageError错误）。如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误。
 
 #### 17、类加载器命名空间实战剖析与透彻理解
 
@@ -2924,6 +2995,14 @@ public class MyTest16 extends ClassLoader
 
 
 #### 57、JVM内存空间划分与作用详解
+
+
+
+#### 附录
+
+##### 助记符
+
+
 
 
 
