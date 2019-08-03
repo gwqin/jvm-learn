@@ -2836,21 +2836,440 @@ MySample和MyCat都会被加载。注释掉`Object o = aClass.newInstance();`后
 
 #### 17、类加载器命名空间实战剖析与透彻理解
 
+##### 实例17_1
 
+复用实例17中的MyCat和MySample类，新建MyTest17_1类，编译工程后将edu目录复制一份到桌面。
+
+![1564809039821](JVM.assets/1564809039821.png)
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:20
+ * @descrption:
+ */
+public class MyTest17_1
+{
+    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\");
+        Class<?> aClass = loader1.loadClass("edu.learn.gwqin.jvm.MySample");
+        System.out.println("class: " + aClass.hashCode());
+        /**
+         * 如果注释掉下面这行，那么并不会实例化MySample对象，即MySample构造方法不会被调用
+         * 因此不会实例化MyCat对象，既没有对MyCat进行主动使用，这里就不会加载MyCat class
+         */
+        Object o = aClass.newInstance();
+    }
+}
+~~~
+
+###### 运行结果
+
+![1564808196911](JVM.assets/1564808196911.png)
+
+loader1会委托父加载器加载MySample和MyCat，应用类加载器在classpath下加载到了对应的类。
+
+下面删除编译目录下的MySample.class和MyCat.class，再运行MyTest17_1得到运行结果：
+
+![1564808695938](JVM.assets/1564808695938.png)
+
+由于编译目录下的两个class文件都被删除，JVM自带的加载器并不能加载到对应的类，因此loader1生效，到指定的path下加载桌面上的类。
+
+重新编译工程，然后单独删除MyCat.class。此时MySample.class在编译目录和桌面上都有一份，而MyCat.class只在桌面留存一份。再运行MyTest17_1得到运行结果：
+
+![1564809158220](JVM.assets/1564809158220.png)
+
+loader1在加载MySample.class时先委托系统类加载器加载，系统类可以加载到MySample.class，但是在执行`new MyCat();`时，系统类加载器任然试图去加载MyCat.class，但是编译目录下的MyCat.class文件已经被删除，因此报错。
+
+修改MyCat代码：
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:19
+ * @descrption:
+ */
+public class MyCat
+{
+    public MyCat()
+    {
+        System.out.println("MyCat is loaded by : " + this.getClass().getClassLoader());
+        System.out.println("from MyCat: " + MySample.class);// 新增代码
+    }
+}
+~~~
+
+rebuild当前工程，然后复制edu文件到桌面（原edu文件删除），再删除编译目录下的MySample.class，再运行MyTest17_1得到运行结果：
+
+![1564810296839](JVM.assets/1564810296839.png)
+
+编译目录下的MySample.class被删除后，loader1生效并加载到桌面上的MySample.class文件，因此MySample.class的加载器是自定义类加载器loader1。但在加载MyCat类时，由于loader1委托系统类加载器加载，且编译目录下存在MyCat.class，因此系统类加载器可以加载到MyCat类，即MyCat类的加载器是AppClassLoader。MyCat中执行`System.out.println("from MyCat: " + MySample.class);`时，用的还是AppClassLoader的命名空间，AppClassLoader的命名空间（**每个类加载器都有自己的命名空间，命名空间由该类加载器及所有父加载器所加载的类组成**）并没有MySample.class，因此会报NoClassDefFoundError。
+
+修改MySample和MyCat代码：
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:19
+ * @descrption:
+ */
+public class MySample
+{
+    public MySample()
+    {
+        System.out.println("MySample is loaded by : " + this.getClass().getClassLoader());
+        new MyCat();
+        System.out.println("form MySample :" + MyCat.class);
+    }
+}
+~~~
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/2 19:19
+ * @descrption:
+ */
+public class MyCat
+{
+    public MyCat()
+    {
+        System.out.println("MyCat is loaded by : " + this.getClass().getClassLoader());
+//        System.out.println("from MyCat: " + MySample.class);// 新增代码
+    }
+}
+~~~
+
+rebuild工程，再将编译的edu文件复制到桌面（原edu文件删除），再删除编译目录下的MySample.class，再运行MyTest17_1得到运行结果：
+
+![1564811347414](JVM.assets/1564811347414.png)
+
+编译目录下的MySample.class被删除后，loader1生效并加载到桌面上的MySample.class文件，因此MySample.class的加载器是自定义类加载器loader1。执行`new MyCat();`时，loader1会先委托系统类加载器进行加载，编译目录下存在MyCat.class，系统类加载器加载成功，即MyCat类的加载器是AppClassLoader。MySample执行到`System.out.println("form MySample :" + MyCat.class);`由于loader1是子类加载器，而yCat类的加载器AppClassLoader是父类，子类加载器可以看到父类加载器加载的类，因此不会报错。
+
+###### 结论
+
+1. 子加载器所加载的类能够访问到父加载器所加载的类 ；
+2. 父加载器所加载的类无法访问到子类加载器所加载的类。
 
 #### 18、类加载器实战剖析与疑难点解析
 
+##### 实例18
 
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 14:12
+ * @descrption:
+ */
+public class MyTest18
+{
+    public static void main(String[] args)
+    {
+        System.out.println(System.getProperty("sun.boot.class.path"));
+        System.out.println(System.getProperty("java.ext.dirs"));
+        System.out.println(System.getProperty("java.class.path"));
+    }
+}
+~~~
+
+###### 运行结果
+
+![1564814826851](JVM.assets/1564814826851.png)
+
+###### 解释
+
+sun.boot.class.path：系统类加载器加载路径；
+
+java.ext.dirs：扩展类加载器加载路径；
+
+java.class.path：应用类加载器加载路径。
+
+##### 实例18_1
+
+###### 代码
+
+~~~java 
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 14:12
+ * @descrption:
+ */
+public class MyTest18_1
+{
+    public static void main(String[] args) throws ClassNotFoundException
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        loader1.setPath("C:\\Users\\xk\\Desktop\\");
+        Class<?> clazz = loader1.loadClass("edu.learn.gwqin.jvm.C");
+        System.out.println("class : " + clazz.hashCode());
+        System.out.println("class loader :" + clazz.getClassLoader());
+    }
+}
+~~~
+
+将C.class拷贝一份到C:\Program Files\Java\jdk1.8.0_91\jre\classes目录下
+
+###### 运行结果
+
+![1564815662702](JVM.assets/1564815662702.png)
+
+###### 解释
+
+null表示该类是由启动类加载器加载。同理，将class文件放置扩展类加载器加载路径中后，加载器将会变成扩展类加载器，此处不再冗余演示。
+
+##### 实例19
+
+###### java代码
+
+~~~java 
+package edu.learn.gwqin.jvm;
+
+import com.sun.crypto.provider.AESKeyGenerator;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 15:05
+ * @descrption:
+ */
+public class MyTest19
+{
+    public static void main(String[] args)
+    {
+        AESKeyGenerator aesKeyGenerator = new AESKeyGenerator();
+
+        System.out.println(aesKeyGenerator.getClass().getClassLoader());
+        System.out.println(MyTest19.class.getClassLoader());
+    }
+}
+~~~
+
+###### 运行结果
+
+![1564815987875](JVM.assets/1564815987875.png)
+
+命令行运行程序，并将扩展类加载器加载路径（java.ext.dirs）的值设为当前路径运行结果：
+
+![1564816700308](JVM.assets/1564816700308.png)
+
+##### 实例20
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 15:18
+ * @descrption:
+ */
+public class MyPerson
+{
+    private MyPerson myPerson;
+
+    public void setMyPerson(Object object)
+    {
+        this.myPerson = (MyPerson) object;
+    }
+}
+~~~
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.lang.reflect.Method;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 15:20
+ * @descrption:
+ */
+public class MyTest20
+{
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        MyTest16 loader2 = new MyTest16("loader2");
+
+        Class<?> clazz1 = loader1.loadClass("edu.learn.gwqin.jvm.MyPerson");
+        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.MyPerson");
+
+        System.out.println(clazz1 == clazz2);
+
+        Object object1 = clazz1.newInstance();
+        Object object2 = clazz2.newInstance();
+
+        Method method = clazz1.getMethod("setMyPerson", Object.class);
+        method.invoke(object1, object2);
+    }
+}
+~~~
+
+###### 运行结果
+
+![1564817130562](JVM.assets/1564817130562.png)
+
+###### 解释
+
+loader1和loader2都是MyTest16的实例，它们拥有共同的父加载器。当loader1加载MyPerson类时，会委托系统加载器加载，系统加载器能够加载到MyPerson类。当loader2加载MyPerson类时，也会委托系统加载器加载，由于系统加载器已经加载过MyPerson类，因此直接将MyPerson类的类对象返回。所以clazz1和clazz2本质上是一个对象。
 
 #### 19、类加载器命名空间深度解析与实例分析
 
+##### 实例21
 
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import java.lang.reflect.Method;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 15:20
+ * @descrption:
+ */
+public class MyTest21
+{
+    public static void main(String[] args) throws Exception
+    {
+        MyTest16 loader1 = new MyTest16("loader1");
+        MyTest16 loader2 = new MyTest16("loader2");
+
+        loader1.setPath("C:\\Users\\xk\\Desktop\\");
+        loader2.setPath("C:\\Users\\xk\\Desktop\\");
+
+        Class<?> clazz1 = loader1.loadClass("edu.learn.gwqin.jvm.MyPerson");
+        Class<?> clazz2 = loader2.loadClass("edu.learn.gwqin.jvm.MyPerson");
+
+        System.out.println(clazz1 == clazz2);
+
+        Object object1 = clazz1.newInstance();
+        Object object2 = clazz2.newInstance();
+
+        Method method = clazz1.getMethod("setMyPerson", Object.class);
+        method.invoke(object1, object2);
+    }
+}
+~~~
+
+rebuild工程，将编译后的edu拷贝一份到桌面，并将编译路径下的MyPerson.class文件删除，运行MyTest21程序。
+
+###### 运行结果
+
+![1564818996726](JVM.assets/1564818996726.png)
+
+###### 解释
+
+由于编译路径下的MyPerson.class被删除，父加载器无法加载成功，只能有子加载器加载，即loader1和loader2都生效，并各自加载到了MyPerson类，一共加载了两次。
+
+由于loader1和loader2是两个不同的MyTest16实例，因此clazz1和clazz2在不同的类加载器命名空间中，互相不可见所以实例化的对象也不可见，即object1和object2不可见。因此会报ClassCastException。
+
+**同一个命名空间内的类是相互可见的。**
+
+**子加载器的命名空间包含所有父加载器的命名空间。因此由子加载器加载的类能够看见父加载器加载的类，例如系统加载器加载的类您呢个看见根类加载器加载的类。**
+
+**由父加载器加载的类不能看见子加载器加载的类。**
+
+**如果两个加载器之间没有直接或间接的父子关系，那么它们各自加载的类相互不可见。**
 
 #### 20、类加载器命名空间总结与扩展类加载器要点分析
 
+类加载双亲委托模型的好处：
 
+1. 可以确保Java核心库的类型安全：所有的java应用都至少会应用java.lang.Object类，也就是说在运行期，java.lang.Object这个类会被加载到虚拟机中，如果这个加载过程由java应用自己的类加载器完成，那么很有可能就会在jvm中存在多个版本的java.lang.Object类，而且这些类库中的类的加载工作都是由启动类加载器来统一完成，从而确保了java应用所有的都是一个版本的java核心类库，它们之间是相互兼容的。
+2. 可以确保java核心类库所提供的类不会被自定义的类所替代。
+3. 不同的类加载器可以为相容的名称（binary name）的类创建额外的命名空间，相同名称的类可以并存在java虚拟机中，只需要用不同的类加载器来加载他们即可。不同类加载器所加载的类之间是不兼容的，这就相当于在java虚拟机内部创建了一个又一个相互隔离的java类空间，这类技术在很多框架中得到了实际应用。
+
+##### 实例22
+
+###### java代码
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 16:50
+ * @descrption:
+ */
+public class MyTest22
+{
+    static
+    {
+        System.out.println("MyTest22 initializer");
+    }
+    public static void main(String[] args)
+    {
+        System.out.println(MyTest22.class.getClassLoader());
+        System.out.println(MyTest1.class.getClassLoader());
+    }
+}
+~~~
+
+###### 运行结果
+
+![1564822446137](JVM.assets/1564822446137.png)
+
+在命令行修改java.ext.dirs为当前路径后，得到的两个类的ClassLoader仍然是系统类还在器，而不是扩展类加载器。原因是，**扩展类加载器只能通过jar的形式来加载类，不会加载class文件形式的类。**
+
+将MyTest1.class打成jar包运行结果：
+
+![1564822742781](JVM.assets/1564822742781.png)
 
 #### 21、平台特定的启动类加载器深入分析与自定义系统类加载器详解
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
