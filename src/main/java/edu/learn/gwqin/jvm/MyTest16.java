@@ -1,7 +1,5 @@
 package edu.learn.gwqin.jvm;
 
-import sun.management.snmp.jvminstr.JvmRuntimeImpl;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +25,10 @@ public class MyTest16 extends ClassLoader
         this.path = path;
     }
 
+    public MyTest16(ClassLoader classLoader)
+    {
+        super(classLoader);
+    }
     public MyTest16(String classLoaderName)
     {
         //super(); // 将系统类加载器作为该类加载器的父类加载器

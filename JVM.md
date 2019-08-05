@@ -3237,29 +3237,124 @@ public class MyTest22
 
 #### 21、平台特定的启动类加载器深入分析与自定义系统类加载器详解
 
+##### 实例23
 
+###### java代码
 
+~~~java
+package edu.learn.gwqin.jvm;
 
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 14:12
+ * @descrption:
+ */
+public class MyTest23
+{
+    public static void main(String[] args)
+    {
+        System.out.println(System.getProperty("sun.boot.class.path"));
+        System.out.println(System.getProperty("java.ext.dirs"));
+        System.out.println(System.getProperty("java.class.path"));
+    }
+}
+~~~
 
+###### 运行结果
 
+IDE运行结果：
 
+![1564987512380](JVM.assets/1564987512380.png)
 
+命令行运行结果：
 
+![1564991281304](JVM.assets/1564991281304.png)
 
+`System.out.println(System.getProperty("java.class.path"));`在命令行的执行结果和IDE中的执行结果不一样，多了一个“.”的路径，也就是当前路径，出现这种情况是因为IDE在运行的时候会加上一些IDE认为有用的变量。
 
+另外，在运行期间，一个java类由该类的完全限定名（二进制名）和用于加载该类的定义类加载器（defining loader）所共同决定。即，如果同样限定名的类是由两个不同的类加载器加载，那么加载的类是不同的。即便.class文件的字节码完全一样并且是从相同的位置加载亦是如此。
 
+修改sun.boot.class.path的值再次运行结果：
 
+![1564992006596](JVM.assets/1564992006596.png)
 
+在Oracle的hotspot实现中，系统属性sun.boot.class.path如果修改错误，则运行会报错。提示如下报错信息：
 
+Error occurred during initialization of VM 
+java/lang/NoClassDefFoundError: java/lang/Object
 
+内建于jvm中的启动类加载器会加载java.lang.ClassLoader以及其他的java平台类，当jvm启动时，一块也·特殊的机器码会运行，它会加载扩展类加载器和系统类加载器，这块特殊的机器码叫做系统类加载器（Bootstrap）。
 
+启动类加载器并不是Java类，而其它的加载器都是Java类，启动类加载器是特定平台的机器指令，它负责开启整个加载过程。
 
+所有类加载器（除了启动类加载器）都被实现为Java类。不过，总归要有一个组件来加载第一个Java类加载器，从而让整个过程能够顺利进行下去，加载第一个纯Java类加载器就是启动类加载器的职责。
 
+启动类加载器还会负责加载提供JRE正常运行所需要的基本组件，包括java.lang和java.util包中的类等等。
 
+实例23增加`System.out.println(ClassLoader.class.getClassLoader());`运行结果为：
 
+![1564992868753](JVM.assets/1564992868753.png)
 
+执行结果是null，原因就是ClassLoader就是由启动类加载器加载的。
 
+下面证明扩展类加载器和应用类加载器也是由启动类加载器加载。由于扩展类加载器和应用类加载器都是在Launcher里，且不是public，因此无法在MyTest23里边直接引用他们。但是如果一个类加载器加载了Launcher，那么这个加载了Launcher的加载器会尝试加载Launcher里边的类，因此只要知道Launcher是是由谁加载的就可以知道扩展类加载器和应用类加载器是由谁加载的了。实例23再增加`System.out.println(Launcher.class.getClassLoader());`运行结果为：
 
+![1564993231873](JVM.assets/1564993231873.png)
+
+执行结果是null，由此可知扩展类加载器和应用类加载器都是由启动类加载器所加载的。 
+
+由扩展类加载器和系统类加载器的源码也可以佐证：
+
+![1564993423641](JVM.assets/1564993423641.png)
+
+![1564993508635](JVM.assets/1564993508635.png)
+
+如果系统属性`java.system.class.loader`被定义，那么该属性的值对应的class会被默认的系统类加载器加载，并作为系统类加载器，这个被定义的加载器必须有一个单个参数构造器，参数类型是ClassLoader，用来代理父加载器，使用这个构造器传入默认的系统类加载器会创建一个加载器实例，这个实例会称为系统类加载器。
+
+在MyTest16中增加构造方法：
+
+~~~java
+public MyTest16(ClassLoader classLoader)
+{
+    super(classLoader);
+}
+~~~
+
+MyTest23代码：
+
+~~~java
+package edu.learn.gwqin.jvm;
+
+import sun.misc.Launcher;
+
+/**
+ * @author: gwqin
+ * @date: 2019/8/3 14:12
+ * @descrption:
+ */
+public class MyTest23
+{
+    public static void main(String[] args)
+    {
+        System.out.println(System.getProperty("sun.boot.class.path"));
+        System.out.println(System.getProperty("java.ext.dirs"));
+        System.out.println(System.getProperty("java.class.path"));
+
+        System.out.println("-------------------");
+        System.out.println(ClassLoader.class.getClassLoader());
+
+        System.out.println("-------------------");
+        System.out.println(Launcher.class.getClassLoader());
+
+        System.out.println("-------------------");
+        System.out.println(ClassLoader.getSystemClassLoader());
+
+        System.out.println(System.getProperty("java.system.class.loader"));
+    }
+}
+~~~
+
+命令行执行结果：
 
 
 

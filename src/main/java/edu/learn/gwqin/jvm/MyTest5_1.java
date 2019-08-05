@@ -1,7 +1,5 @@
 package edu.learn.gwqin.jvm;
 
-import java.util.Random;
-
 /**
  * @author: gwqin
  * @date: 2019/7/31 12:25
